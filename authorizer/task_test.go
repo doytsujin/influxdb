@@ -1,4 +1,4 @@
-package task_test
+package authorizer_test
 
 import (
 	"context"
@@ -6,17 +6,18 @@ import (
 	"testing"
 
 	"github.com/influxdata/influxdb"
+	"github.com/influxdata/influxdb/authorizer"
 	pctx "github.com/influxdata/influxdb/context"
 	"github.com/influxdata/influxdb/http"
 	"github.com/influxdata/influxdb/inmem"
 	"github.com/influxdata/influxdb/mock"
-	"github.com/influxdata/influxdb/task"
+	_ "github.com/influxdata/influxdb/query/builtin"
 	"go.uber.org/zap/zaptest"
 )
 
 func TestOnboardingValidation(t *testing.T) {
 	svc := inmem.NewService()
-	validator := task.NewValidator(zaptest.NewLogger(t), mockTaskService(3, 2, 1), svc)
+	validator := authorizer.NewValidator(zaptest.NewLogger(t), mockTaskService(3, 2, 1), svc)
 
 	r, err := svc.Generate(context.Background(), &influxdb.OnboardingRequest{
 		User:            "Setec Astronomy",
@@ -127,7 +128,7 @@ func TestValidations(t *testing.T) {
 		t.Fatal(err)
 	}
 	orgID := r.Org.ID
-	validTaskService := task.NewValidator(zaptest.NewLogger(t), mockTaskService(orgID, taskID, runID), inmem)
+	validTaskService := authorizer.NewValidator(zaptest.NewLogger(t), mockTaskService(orgID, taskID, runID), inmem)
 
 	var (
 		// Read all tasks in org.
